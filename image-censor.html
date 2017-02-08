@@ -2,7 +2,7 @@
 <html lang="he" dir="rtl">
 <head>
 	<script src="https://ajax.googleapis.com/ajax/libs/jquery/3.1.1/jquery.min.js"></script>
-	<title>Image Editor</title>
+	<title>Image Censor</title>
 	<style type="text/css">
 	* {
 		box-sizing: border-box;
@@ -49,49 +49,49 @@
 	$(document).ready(function() {
 		input = $('#input-url');
 		prevImg = $('#preview-image');
-		canvas = $('#canvas');
-
+		// preview & edit image
 		setPreviewImageUrl = function() {
 			prevImg.attr('src', input.val());
 		};
-
-		setCanvasSize = function() {
-			canvas.attr('width', prevImg.width() + 'px').attr('height', prevImg.height() + 'px');
-		};
-
-		setCanvasImage = function() {
-			if (canvas && canvas[0].getContext) {
-				context = canvas[0].getContext('2d');
-				if (context) {
-					var image = new Image();
-					image.src = prevImg[0].src;
-					image.onload = function() {
-						context.drawImage(image, 0, 0);
-					};
-				}
-			}
-		};
-
 		input.change(function() {
 			setPreviewImageUrl();
 		});
-		prevImg[0].onload = function() {
-			setCanvasSize();
-			setCanvasImage();
-		};
 
 		startEdit = function() {
-			canvas.mousedown(function(e) {
+			prevImg.mousedown(function(e) {
 				console.log(e);
 			});
-			canvas.mouseup(function(e) {
+			prevImg.mouseup(function(e) {
 				console.log(e);
 			});
 		};
 		stopEdit = function() {
-			canvas.off('mousedown');
-			canvas.off('mouseup');
+			prevImg.off('mousedown');
+			prevImg.off('mouseup');
 		};
+		prevImg.on('load', function() {
+			stopEdit();
+			startEdit();
+		});
+
+
+		// canvs
+		canvas = $('#canvas');
+		setCanvasSize = function() {
+			canvas.attr('width', prevImg.width() + 'px').attr('height', prevImg.height() + 'px');
+		};
+		setCanvasImage = function() {
+			context = canvas[0].getContext('2d');
+			var image = new Image();
+			image.src = prevImg[0].src;
+			image.onload = function() {
+				context.drawImage(image, 0, 0);
+			};
+		};
+		prevImg.on('load', function() {
+			setCanvasSize();
+			setCanvasImage();
+		});
 	});
 	</script>
 </head>
@@ -108,10 +108,16 @@
 			<span>https://www.google.com/images/branding/googlelogo/2x/googlelogo_color_272x92dp.png</span>
 		</div>
 		<div class="section section2">
-			<div class="canvas-wrap"><!--
-			--><canvas id="canvas" width="50" height="50"></canvas><!--
-			--><div class="canvas-select"></div><!--
-		--></div>
+			<div class="canvas-wrap">
+				<!--
+			-->
+				<canvas id="canvas" width="50" height="50"></canvas>
+				<!--
+			-->
+				<div class="canvas-select"></div>
+				<!--
+		-->
+			</div>
 		</div>
 	</div>
 </body>
