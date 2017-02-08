@@ -2,6 +2,8 @@
 <html lang="he" dir="rtl">
 <head>
 	<script src="https://ajax.googleapis.com/ajax/libs/jquery/3.1.1/jquery.min.js"></script>
+	<script src="src/jquery.selectareas/jquery.selectareas.js"></script>
+	<link href="src/jquery.selectareas/jquery.selectareas.css" media="screen" rel="stylesheet" type="text/css" />
 	<title>Image Censor</title>
 	<style type="text/css">
 	* {
@@ -70,8 +72,7 @@
 			prevImg.off('mouseup');
 		};
 		prevImg.on('load', function() {
-			stopEdit();
-			startEdit();
+			prevImg.selectAreas().destroy();
 		});
 
 
@@ -98,14 +99,18 @@
 <body>
 	<div class="content">
 		<div class="section section1">
-			<label for="input-url">URL</label>
-			<br/>
-			<input type="text" id="input-url" name="input-url">
-			<br/>
-			<img src="" id="preview-image">
-			<br/>
-			<br/>
-			<span>https://www.google.com/images/branding/googlelogo/2x/googlelogo_color_272x92dp.png</span>
+			<div>
+				<label for="input-url">URL</label>
+				<br/>
+				<input type="text" id="input-url" name="input-url">
+				<br/>
+				<div style="display:inline-block;text-align:right;">
+					<img src="" id="preview-image">
+				</div>
+				<br/>
+				<br/>
+				<span>https://www.google.com/images/branding/googlelogo/2x/googlelogo_color_272x92dp.png</span>
+			</div>
 		</div>
 		<div class="section section2">
 			<div class="canvas-wrap">
