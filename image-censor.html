@@ -1,7 +1,7 @@
 <!DOCTYPE html>
 <html lang="he" dir="rtl">
 <head>
-	<script src="https://ajax.googleapis.com/ajax/libs/jquery/3.1.1/jquery.min.js"></script>
+	<script src="src/jquery.min.js"></script>
 	<script src="src/jquery.selectareas/jquery.selectareas.js"></script>
 	<link href="src/jquery.selectareas/jquery.selectareas.css" media="screen" rel="stylesheet" type="text/css" />
 	<title>Image Censor</title>
@@ -18,18 +18,49 @@
 	}
 	.section {
 		flex: 1;
-		padding: 15px;
+		padding: 0 15px 15px;
 		border: solid 1px #aaa;
 		height: 99vh;
 		text-align: center;
 	}
-	#input-url {
-		display: block;
-		width: 100%;
+	header {
+		margin: 5px auto 15px;
+	}
+	.input-continer {
 		margin: 15px auto;
 		direction: ltr;
 	}
-	#preview-image,
+	#input-url {
+		width: 90%;
+	}
+	.image-continer {
+		-webkit-user-select: none;
+		-moz-user-select: none;
+		-ms-user-select: none;
+		user-select: none;
+	}
+	#preview-image {
+		box-shadow: 1px 1px 5px #aaa;
+		border: solid 2px #fff;
+	}
+	.buttons {
+		display: none;
+		margin: 15px auto;
+	}
+	.buttons button {
+		cursor: pointer;
+		margin: 0 10px;
+	}
+	.section2 {
+		flex: 0 200px;
+		overflow: auto;
+		border-left: 0;
+		border-right: 0;
+	}
+	pre {
+		text-align: left;
+		direction: ltr;
+	}
 	#canvas {
 		box-shadow: 1px 1px 5px #aaa;
 		border: solid 2px #fff;
@@ -49,35 +80,50 @@
 	</style>
 	<script type="text/javascript">
 	$(document).ready(function() {
-		input = $('#input-url');
-		prevImg = $('#preview-image');
+
+		var input = $('#input-url');
+		var prevImg = $('#preview-image');
+		var pre = $('pre');
+		var btns = $('.buttons');
+		var btnReset = $('#button-reset');
+		var btnSave = $('#button-save');
+
+		selectAreasSet = function() {
+			prevImg.selectAreas({
+				minSize: [5, 5]
+			});
+			btns.show();
+		};
+		selectAreasReset = function() {
+			prevImg.selectAreas('reset');
+			pre.html('');
+			
+		};
+		selectAreasDestroy = function() {
+			prevImg.selectAreas('destroy');
+			pre.html('');
+			btns.hide();
+			
+		};
+		selectAreasSave = function() {
+			var areas = prevImg.selectAreas('areas');
+			var jsonAreas = JSON.stringify(areas, null, 2)
+			pre.html(jsonAreas);
+			setCanvas();
+		};
+
 		// preview & edit image
-		setPreviewImageUrl = function() {
+		input.on('change', function() {
+			selectAreasDestroy();
 			prevImg.attr('src', input.val());
-		};
-		input.change(function() {
-			setPreviewImageUrl();
 		});
-
-		startEdit = function() {
-			prevImg.mousedown(function(e) {
-				console.log(e);
-			});
-			prevImg.mouseup(function(e) {
-				console.log(e);
-			});
-		};
-		stopEdit = function() {
-			prevImg.off('mousedown');
-			prevImg.off('mouseup');
-		};
-		prevImg.on('load', function() {
-			prevImg.selectAreas().destroy();
-		});
+		prevImg.on('load', selectAreasSet );
+		btnReset.on('click', selectAreasReset );
+		btnSave.on('click', selectAreasSave );
 
 
-		// canvs
-		canvas = $('#canvas');
+		// canvas;
+		var canvas = $('#canvas');
 		setCanvasSize = function() {
 			canvas.attr('width', prevImg.width() + 'px').attr('height', prevImg.height() + 'px');
 		};
@@ -89,34 +135,54 @@
 				context.drawImage(image, 0, 0);
 			};
 		};
-		prevImg.on('load', function() {
+		setCanvas = function() {
 			setCanvasSize();
 			setCanvasImage();
-		});
+		};
+
+		//init
+		input.val('https://www.google.com/images/branding/googlelogo/2x/googlelogo_color_272x92dp.png').trigger('change');
 	});
 	</script>
 </head>
 <body>
 	<div class="content">
 		<div class="section section1">
+			<header>
+				<span>Client Side</span>
+			</header>
 			<div>
-				<label for="input-url">URL</label>
-				<br/>
-				<input type="text" id="input-url" name="input-url">
-				<br/>
-				<div style="display:inline-block;text-align:right;">
+				<div class="input-continer">
+					<label for="input-url">URL
+						<input type="text" id="input-url" name="input-url">
+					</label>
+				</div>
+				<div class="image-continer" style="display:inline-block;text-align:right;">
 					<img src="" id="preview-image">
 				</div>
-				<br/>
-				<br/>
-				<span>https://www.google.com/images/branding/googlelogo/2x/googlelogo_color_272x92dp.png</span>
+				<div class="buttons">
+					<button class="button" id="button-reset">Reset</button>
+					<button class="button" id="button-save">Save</button>
+				</div>
+				<!-- <span>https://www.google.com/images/branding/googlelogo/2x/googlelogo_color_272x92dp.png</span> -->
 			</div>
 		</div>
 		<div class="section section2">
+			<header>
+				<span>Service</span>
+			</header>
+			<pre>
+				
+			</pre>
+		</div>
+		<div class="section section3">
+			<header>
+				<span>Server Side</span>
+			</header>
 			<div class="canvas-wrap">
 				<!--
 			-->
-				<canvas id="canvas" width="50" height="50"></canvas>
+				<canvas id="canvas" width="0" height="0	"></canvas>
 				<!--
 			-->
 				<div class="canvas-select"></div>
