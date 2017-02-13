@@ -69,14 +69,6 @@
 		display: inline-block;
 		position: relative;
 	}
-	.canvas-select {
-		position: absolute;
-		left: 0;
-		right: 100%;
-		top: 0;
-		bottom: 100%;
-		border: solid 1px #000;
-	}
 	</style>
 	<script type="text/javascript">
 	$(document).ready(function() {
@@ -88,6 +80,9 @@
 		var btnReset = $('#button-reset');
 		var btnSave = $('#button-save');
 
+		var areas;
+		var context;
+
 		selectAreasSet = function() {
 			prevImg.selectAreas({
 				minSize: [5, 5]
@@ -97,16 +92,16 @@
 		selectAreasReset = function() {
 			prevImg.selectAreas('reset');
 			pre.html('');
-			
+
 		};
 		selectAreasDestroy = function() {
 			prevImg.selectAreas('destroy');
 			pre.html('');
 			btns.hide();
-			
+
 		};
 		selectAreasSave = function() {
-			var areas = prevImg.selectAreas('areas');
+			areas = prevImg.selectAreas('areas');
 			var jsonAreas = JSON.stringify(areas, null, 2)
 			pre.html(jsonAreas);
 			setCanvas();
@@ -117,9 +112,9 @@
 			selectAreasDestroy();
 			prevImg.attr('src', input.val());
 		});
-		prevImg.on('load', selectAreasSet );
-		btnReset.on('click', selectAreasReset );
-		btnSave.on('click', selectAreasSave );
+		prevImg.on('load', selectAreasSet);
+		btnReset.on('click', selectAreasReset);
+		btnSave.on('click', selectAreasSave);
 
 
 		// canvas;
@@ -135,9 +130,21 @@
 				context.drawImage(image, 0, 0);
 			};
 		};
+		cutCanvasAreas = function() {
+			for (i in areas) {
+				var item = areas[i];
+				context.beginPath();
+				//context.rect(item.x, item.y, item.width, item.height);
+				//context.fillStyle = "#fff";
+				context.clearRect(item.x, item.y, item.width, item.height);
+			}
+		};
 		setCanvas = function() {
 			setCanvasSize();
 			setCanvasImage();
+			setTimeout(function() {
+				cutCanvasAreas();
+			}, 0)
 		};
 
 		//init
@@ -180,14 +187,7 @@
 				<span>Server Side</span>
 			</header>
 			<div class="canvas-wrap">
-				<!--
-			-->
 				<canvas id="canvas" width="0" height="0	"></canvas>
-				<!--
-			-->
-				<div class="canvas-select"></div>
-				<!--
-		-->
 			</div>
 		</div>
 	</div>
