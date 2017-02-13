@@ -66,9 +66,8 @@
 		box-shadow: 1px 1px 5px #aaa;
 		border: solid 2px #fff;
 	}
-	.canvas-wrap {
-		display: inline-block;
-		position: relative;
+	#draft-canvas {
+		display: none;
 	}
 	</style>
 	<script type="text/javascript">
@@ -82,7 +81,7 @@
 		var btnSave = $('#button-save');
 
 		var areas;
-		var context;
+		var ctx;
 
 		selectAreasSet = function() {
 			prevImg.selectAreas({
@@ -119,37 +118,57 @@
 
 
 		// canvas;
-		var canvas = $('#canvas');
+		canvas = $('#canvas')[0];
 		setCanvasSize = function() {
-			canvas.attr('width', prevImg.width() + 'px').attr('height', prevImg.height() + 'px');
+			canvas.width = prevImg.width();
+			canvas.height = prevImg.height();
 		};
-		setCanvasImage = function() {
-			context = canvas[0].getContext('2d');
-			var image = new Image();
+		setCanvasImage = function(cb) {
+			ctx = canvas.getContext('2d');
+			image = new Image();
 			image.src = prevImg[0].src;
 			image.onload = function() {
-				context.drawImage(image, 0, 0);
+				ctx.drawImage(image, 0, 0);
+				blurCanvasAreas();
 			};
 		};
-		cutCanvasAreas = function() {
+		blurCanvasAreas = function() {
+			//draft mini canvas
+			draft = $('#draft-canvas')[0];
+			draftCtx = draft.getContext('2d');
+
+			if (smoothing == false) {
+				ctx.imageSmoothingEnabled =
+					ctx.mozImageSmoothingEnabled =
+					ctx.msImageSmoothingEnabled =
+					ctx.webkitImageSmoothingEnabled = false;
+			} else {
+				ctx.imageSmoothingEnabled =
+					ctx.mozImageSmoothingEnabled =
+					ctx.msImageSmoothingEnabled =
+					ctx.webkitImageSmoothingEnabled = true;
+			}
+
 			for (i in areas) {
-				var item = areas[i];
-				context.beginPath();
-				//context.rect(item.x, item.y, item.width, item.height);
-				//context.fillStyle = "#fff";
-				context.clearRect(item.x, item.y, item.width, item.height);
+				area = areas[i];
+				//	ctx.clearRect(area.x, area.y, area.width, area.height);	//clean the area.
+				draft.width = (area.width / 25);
+				draft.height = (area.height / 25);
+				draftCtx.drawImage(image, area.x, area.y, area.width, area.height, 0, 0, area.width / 25, area.height / 25);
+				ctx.drawImage(draft, area.x, area.y, area.width, area.height);
 			}
 		};
 		setCanvas = function() {
 			setCanvasSize();
 			setCanvasImage();
-			setTimeout(function() {
-				cutCanvasAreas();
-			}, 50)
 		};
 
+		$('#smoothing').change(function() {
+			smoothing = $('#smoothing')[0].checked;
+		})
+
 		//init
-		input.val('https://www.google.com/images/branding/googlelogo/2x/googlelogo_color_272x92dp.png').trigger('change');
+		input.val('http://i.imgur.com/goCYyDB.jpg').trigger('change');
 	});
 	</script>
 </head>
@@ -169,10 +188,13 @@
 					<img src="" id="preview-image">
 				</div>
 				<div class="buttons">
+					<div>
+						<label for="smoothing">Smoothing True</label>
+						<input type="checkbox" id="smoothing" checked>
+					</div>
 					<button class="button" id="button-reset">Reset</button>
 					<button class="button" id="button-save">Save</button>
 				</div>
-				<!-- <span>https://www.google.com/images/branding/googlelogo/2x/googlelogo_color_272x92dp.png</span> -->
 			</div>
 		</div>
 		<div class="section section2">
@@ -180,7 +202,7 @@
 				<span>Service</span>
 			</header>
 			<pre>
-				
+
 			</pre>
 		</div>
 		<div class="section section3">
@@ -189,6 +211,8 @@
 			</header>
 			<div class="canvas-wrap">
 				<canvas id="canvas" width="0" height="0	"></canvas>
+				<br>
+				<canvas id="draft-canvas" width="0" height="0"></canvas>
 			</div>
 		</div>
 	</div>
