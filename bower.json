@@ -6,5 +6,9 @@
     "zvizvi"
   ],
   "license": "MIT",
-  "homepage": ""
+  "homepage": "",
+  "dependencies": {
+    "jquery-select-areas": "*",
+    "jquery": "^3.1.1"
+  }
 }
